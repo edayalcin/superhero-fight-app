@@ -1,24 +1,36 @@
-import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
+const getHeroesBtn = document.getElementById('get-heroes');
+const fightBtn = document.getElementById('fight-btn');
+const container = document.getElementById('heroes-container');
+const winnerText = document.getElementById('winner');
 
-document.querySelector('#app').innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>Hello Vite!</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-`
+let selectedHeroes = [];
 
-setupCounter(document.querySelector('#counter'))
+getHeroesBtn.addEventListener('click', async () => {
+  const res = await fetch('/heroes.json');
+  const heroes = await res.json();
+  selectedHeroes = heroes.sort(() => 0.5 - Math.random()).slice(0, 2);
+
+  renderHeroes();
+  fightBtn.style.display = 'inline-block';
+  winnerText.textContent = '';
+});
+
+fightBtn.addEventListener('click', () => {
+  const winner = selectedHeroes[Math.floor(Math.random() * 2)];
+  winnerText.textContent = `${winner.name} kazandı!`;
+});
+
+function renderHeroes() {
+  container.innerHTML = '';
+  selectedHeroes.forEach(hero => {
+    const heroCard = document.createElement('div');
+    heroCard.className = 'hero-card';
+    heroCard.innerHTML = `
+      <div class="hero-image-container">
+        <img src="${hero.image}" alt="${hero.name}" />
+      </div>
+      <p>${hero.name}</p>
+    `;
+    container.appendChild(heroCard);
+  });
+}
